@@ -1,0 +1,66 @@
+<div class="clients-container">
+  <div class="actions-bar">
+    <mat-form-field>
+      <input
+        matInput
+        placeholder="Cercar clients..."
+        [(ngModel)]="searchTerm"
+        (keyup)="onSearch()"
+      />
+      <button mat-icon-button matSuffix *ngIf="searchTerm" (click)="clearSearch()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+
+    <button mat-raised-button color="primary" (click)="openDialog()">
+      <mat-icon>add</mat-icon> Nou Client
+    </button>
+  </div>
+
+  <div class="mat-elevation-z8">
+    <table mat-table [dataSource]="clients">
+      <ng-container matColumnDef="code">
+        <th mat-header-cell *matHeaderCellDef>Code</th>
+        <td mat-cell *matCellDef="let client">{{ client.code }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Name</th>
+        <td mat-cell *matCellDef="let client">{{ client.name }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="is_active">
+        <th mat-header-cell *matHeaderCellDef>Is active</th>
+        <td mat-cell *matCellDef="let client">
+          {{ client.is_active ? '&#10003;' : '&#10005;' }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Accions</th>
+        <td mat-cell *matCellDef="let client">
+          <button mat-icon-button color="primary" (click)="openDialog(client)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteClient(client)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+
+    <mat-paginator
+      [length]="totalClients"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[5, 10, 25, 100]"
+      [showFirstLastButtons]="true"
+      [pageIndex]="currentPage - 1"
+      (page)="onPageChange($event)"
+      aria-label="Selecciona pàgina d'usuaris"
+    >
+    </mat-paginator>
+  </div>
+</div>

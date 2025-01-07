@@ -1,0 +1,9 @@
+<mat-paginator
+  [length]="totalItems"
+  [pageSize]="pageSize"
+  [pageSizeOptions]="pageSizeOptions"
+  [showFirstLastButtons]="true"
+  [pageIndex]="currentPage - 1"
+  (page)="onPageChange($any($event))"
+  aria-label="Selecciona pàgina"
+></mat-paginator>

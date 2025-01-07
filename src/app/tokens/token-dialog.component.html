@@ -1,0 +1,31 @@
+<h2 mat-dialog-title>New Token</h2>
+<div mat-dialog-content>
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Device</mat-label>
+    <mat-select required name="device" [(ngModel)]="data.device">
+      <mat-option *ngFor="let device of devices" [value]="device['key']">
+        {{ device['value'] }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Allowed IP's</mat-label>
+    <input
+      matInput
+      type="text"
+      [formControl]="ipsControl"
+      (input)="onInputChange($any($event.target).value)"
+    />
+
+    <mat-error *ngIf="ipsControl.hasError('pattern')">
+      Please enter a valid IP address (e.g. 192.168.1.1).
+    </mat-error>
+  </mat-form-field>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="primary" [disabled]="!isFormValid()" (click)="onSave()">
+    Save
+  </button>
+</div>

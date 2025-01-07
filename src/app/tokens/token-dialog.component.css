@@ -1,0 +1,14 @@
+.full-width {
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+[mat-dialog-actions] {
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+mat-error {
+  display: block !important; /* Forçar que es mostri */
+  color: red; /* Color per destacar */
+}
