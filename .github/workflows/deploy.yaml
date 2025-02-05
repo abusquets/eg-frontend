@@ -73,6 +73,6 @@ jobs:
 
     - name: Deploy to Kubernetes
       run: |
-        KUBECONFIG=kubeconfig.yaml kubectl apply -f k3s/deploy.yaml
-        KUBECONFIG=kubeconfig.yaml kubectl apply -f k3s/service.yaml
+        KUBECONFIG=kubeconfig.yaml kubectl apply -f k3s/frontend-deploy.yaml
+        KUBECONFIG=kubeconfig.yaml kubectl apply -f k3s/frontend-service.yaml
 
