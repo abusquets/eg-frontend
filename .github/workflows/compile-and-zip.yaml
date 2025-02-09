@@ -1,0 +1,102 @@
+name: Compile and Zip Project
+
+on:
+  push:
+    branches:
+      - deploy
+
+permissions:
+  contents: write
+
+jobs:
+  compile-and-zip:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Checkout the code
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # 2. Build the Angular application
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build Angular app
+      run: npm run build --prod
+
+    # 3. Get version from package.json
+    - name: Get version
+      id: get_version
+      run: echo "VERSION=$(jq -r .version < package.json)" >> $GITHUB_ENV
+
+    # 4. Delete existing release and tag
+    - name: Delete existing release
+      run: |
+        gh release delete ${{ env.VERSION }} -y || true
+        gh api -X DELETE /repos/${{ github.repository }}/git/refs/tags/${{ env.VERSION }} || true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    # 5. Create a ZIP file
+    - name: Create ZIP file
+      run: |
+        cd dist/events-guard/browser
+        zip -r ../../project-${{ env.VERSION }}.zip .
+
+    # 6. Create a release and upload the ZIP file
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.VERSION }}
+        release_name: Release ${{ env.VERSION }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: dist/project-${{ env.VERSION }}.zip
+        asset_name: eg-frontend-${{ env.VERSION }}.zip
+        asset_content_type: application/zip
+
+    # 7. Delete existing latest release and tag
+    - name: Delete latest release and tag
+      run: |
+        gh release delete latest -y || true
+        gh api -X DELETE /repos/${{ github.repository }}/git/refs/tags/latest || true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    # 8. Create a new release with the "latest" tag
+    - name: Create Latest Release
+      id: create_latest_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: latest
+        release_name: Release latest
+        draft: false
+        prerelease: false
+
+    # 9. Upload the asset to the "latest" release
+    - name: Upload Latest Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_latest_release.outputs.upload_url }}
+        asset_path: dist/project-${{ env.VERSION }}.zip
+        asset_name: eg-frontend-latest.zip
+        asset_content_type: application/zip
